@@ -10,8 +10,11 @@ void initialise(float **a_ptr, float **b_ptr, float **c_ptr, const int N);
 void finalise(float **a_ptr, float **b_ptr, float **c_ptr, const int N);
 
 int main(int argc, char const *argv[]) {
+  
   int N = 1024; /* vector size */
+  
   int num_iterations = 100000;
+  
   float *a = NULL;
   float *b = NULL;
   float *c = NULL;
@@ -29,11 +32,13 @@ int main(int argc, char const *argv[]) {
   {}
 
   for (int itr = 0; itr < num_iterations; itr++) {
-  // Execute vecadd on the target device
-#pragma omp target teams distribute parallel for
+    
+    // Execute vecadd on the target device
+    #pragma omp target teams distribute parallel for
     for (int i = 0; i < N; i++) {
       c[i] = a[i] + b[i];
     }
+
   }
 
   // Copy the result from the device
@@ -58,13 +63,17 @@ int main(int argc, char const *argv[]) {
 }
 
 void initialise(float **a_ptr, float **b_ptr, float **c_ptr, const int N) {
+  
   // Initialise the arrays on the host
+
   *a_ptr = malloc(sizeof(float) * N);
   if (*a_ptr == NULL)
     die("cannot allocate memory for a", __LINE__, __FILE__);
+  
   *b_ptr = malloc(sizeof(float) * N);
   if (*b_ptr == NULL)
     die("cannot allocate memory for b", __LINE__, __FILE__);
+  
   *c_ptr = malloc(sizeof(float) * N);
   if (*c_ptr == NULL)
     die("cannot allocate memory for c", __LINE__, __FILE__);
@@ -81,6 +90,7 @@ void initialise(float **a_ptr, float **b_ptr, float **c_ptr, const int N) {
 }
 
 void finalise(float **a_ptr, float **b_ptr, float **c_ptr, const int N) {
+  
   // Have to place all pointers into local variables
   // for OpenMP to accept them in mapping clauses
   float *a = *a_ptr;
@@ -93,8 +103,10 @@ void finalise(float **a_ptr, float **b_ptr, float **c_ptr, const int N) {
 
   free(*a_ptr);
   *a_ptr = NULL;
+
   free(*b_ptr);
   *b_ptr = NULL;
+  
   free(*c_ptr);
   *c_ptr = NULL;
 }
